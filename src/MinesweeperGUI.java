@@ -21,6 +21,7 @@ public class MinesweeperGUI extends JPanel {
     private JLabel bombLabel, sizeLabel, titleLabel;
     private JTextField bombField, sizeField;
     private JButton resetButton;
+    private JRadioButton flagBombButton;
 
     private JPanel controlPanel,titlePanel;
     private GridGUI grid;
@@ -47,6 +48,7 @@ public class MinesweeperGUI extends JPanel {
 
 
         grid.setPreferredSize(new Dimension(gridSize,gridSize));
+        grid.setBackground(Color.gray);
 
         add(titlePanel, BorderLayout.NORTH);
         add(grid, BorderLayout.CENTER);
@@ -61,8 +63,8 @@ public class MinesweeperGUI extends JPanel {
     public void createTitlePanel(){
         titleLabel = new JLabel("Minesweeper");
         titleLabel.setFont(new Font("verdanna",Font.BOLD,50));
-
         titlePanel.add(titleLabel);
+        titlePanel.setBackground(Color.gray);
     }
 
 
@@ -78,11 +80,21 @@ public class MinesweeperGUI extends JPanel {
 
 
     /**
+     * Allows user to flag bombs
+     */
+    public void flagBombs(){
+        grid.setFlagBombs();
+    }
+
+
+    /**
      * Creates control panel with slider controls
      */
     public void createControlPanel(){
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new GridLayout(1,4));
+
+        JPanel buttonPanel = new JPanel();
 
         sizeField = new JTextField("10",TEXTFIELD_SIZE);
         bombField = new JTextField("30",TEXTFIELD_SIZE);
@@ -99,8 +111,15 @@ public class MinesweeperGUI extends JPanel {
         ActionListener listener = new GameListener();
         resetButton.addActionListener(listener);
 
-        controlPanel.add(resetButton, BorderLayout.CENTER);
+        flagBombButton = new JRadioButton("Flag Bombs");
+        flagBombButton.addActionListener(listener);
+
+        buttonPanel.add(resetButton, BorderLayout.WEST);
+        buttonPanel.add(flagBombButton, BorderLayout.EAST);
+
+        controlPanel.add(buttonPanel, BorderLayout.CENTER);
         controlPanel.add(labelPanel, BorderLayout.SOUTH);
+        controlPanel.setBackground(Color.gray);
     }
 
 
@@ -121,7 +140,11 @@ public class MinesweeperGUI extends JPanel {
      */
     private class GameListener implements ActionListener{
         public void actionPerformed(ActionEvent e) {
-            resetGame();
+            if(e.getSource() == resetButton)
+                resetGame();
+            else {
+                flagBombs();
+            }
         }
     }
 }

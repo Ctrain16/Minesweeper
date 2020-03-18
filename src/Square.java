@@ -9,7 +9,7 @@ public class Square {
     private int height;
     private int row;
     private int column;
-    private boolean covered;
+    private boolean covered, flagged;
     private String value;
 
     /**
@@ -29,44 +29,45 @@ public class Square {
             this.value = value;
 
         covered = true;
+        flagged = false;
     }
 
 
-    public void uncover(){
-        this.covered = false;
-    }
+    void uncover(){ covered = false; }
 
-    public int getX() {
+    void flag(){ flagged = true;}
+
+    int getX() {
         return x;
     }
 
-    public int getY() {
+    int getY() {
         return y;
     }
 
-    public int getHeight() {
+    int getHeight() {
         return height;
     }
 
-    public int getWidth() {
+    int getWidth() {
         return width;
     }
 
-    public int getColumn() {
+    int getColumn() {
         return column;
     }
 
-    public int getRow() {
+    int getRow() {
         return row;
     }
 
-    public boolean getCovered(){
+    boolean getCovered(){
         return covered;
     }
 
-    public String getValue(){
+    boolean getFlagged(){return flagged;}
+
+    String getValue(){
         return value;
     }
-
-
 }

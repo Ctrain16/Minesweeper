@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.ArrayList;
 
 /**
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 public class GridGUI extends JPanel {
 
     private int rows, columns, width, height, bombs, covered;
-    private boolean gameLost, gameWon;
+    private boolean gameLost, gameWon, flagBomb;
     private ArrayList<Square> squares;
 
     private int [][] grid;
@@ -32,8 +33,10 @@ public class GridGUI extends JPanel {
         this.height = height - 10;
         this.bombs = bombs;
 
+
         gameLost = false;
         gameWon = false;
+        flagBomb = false;
 
         MouseListener click = new ClickListener();
         addMouseListener(click);
@@ -76,6 +79,31 @@ public class GridGUI extends JPanel {
 
 
     /**
+     * Sets flagBomb var
+     */
+    public void setFlagBombs(){
+        flagBomb = !flagBomb;
+    }
+
+
+    /**
+     * Flags bomb
+     * @param x
+     * @param y
+     */
+    public void flagBomb(int x, int y){
+        for(Square s : squares){
+            if(x > s.getX() && x < s.getX() + s.getWidth()){
+                if(y > s.getY() && y < s.getY() + s.getHeight()) {
+                    s.flag();
+                }
+            }
+        }
+        repaint();
+    }
+
+
+    /**
      * Paints graphical components
      * @param g
      */
@@ -84,35 +112,28 @@ public class GridGUI extends JPanel {
 
 
         for(Square s : squares){
-            g.setColor(Color.black);
-            g.drawString(s.getValue(),s.getX() + s.getWidth()/2,s.getY() + s.getHeight()/2);
+            Color textColor = setColor(s.getValue());
+            g.setColor(textColor);
+            g.setFont(new Font("verdanna", Font.BOLD,s.getWidth()/2));
+            if(s.getValue().equals("9"))
+                g.drawString("B",s.getX() + 2 * s.getWidth()/5,s.getY() + 3 * s.getHeight()/5);
+            else
+                g.drawString(s.getValue(),s.getX() + 2 * s.getWidth()/5,s.getY() + 3 * s.getHeight()/5);
 
+            //covers square if needed
             g.setColor(Color.lightGray);
-            if(s.getCovered())
+            if(s.getCovered()){
+                if(s.getFlagged())
+                    g.setColor(Color.red);
                 g.fillRect(s.getX(),s.getY(),s.getWidth(),s.getHeight());
+            }
 
+
+            //draws border
             g.setColor(Color.black);
             g.drawRect(s.getX(),s.getY(),s.getWidth(),s.getHeight());
 
         }
-
-
-        /*
-        Used for testing, has values over top of squares
-        for(Square s : squares){
-            g.setColor(Color.lightGray);
-            if(s.getCovered())
-                g.fillRect(s.getX(),s.getY(),s.getWidth(),s.getHeight());
-            g.setColor(Color.black);
-            g.drawString(s.getValue(),s.getX() + s.getWidth()/2,s.getY() + s.getHeight()/2);
-
-
-
-            g.setColor(Color.black);
-            g.drawRect(s.getX(),s.getY(),s.getWidth(),s.getHeight());
-
-        }
-        */
 
         if(gameLost){
             g.setFont(new Font("verdanna",Font.BOLD,30));
@@ -123,6 +144,25 @@ public class GridGUI extends JPanel {
             g.setFont(new Font("verdanna",Font.BOLD,30));
             g.drawString("Congratulations! You win", width/2 - 165, height/2 - 60);
             g.drawString("Click to Reset", width/2 - 90, height/2);
+        }
+    }
+
+
+    /**
+     * Sets the color of the text based on how many
+     * bombs are in proximity
+     * @param value
+     * @return
+     */
+    public Color setColor(String value){
+        switch (value){
+            case ("1"):return Color.BLUE;
+            case ("2"):return Color.GREEN;
+            case ("3"):return Color.RED;
+            case ("4"):return Color.PINK;
+            case ("5"):return Color.CYAN;
+            case ("6"):return Color.YELLOW;
+            default:return Color.BLACK;
         }
     }
 
@@ -326,7 +366,10 @@ public class GridGUI extends JPanel {
             else{
                 int x = event.getX();
                 int y = event.getY();
-                removeBlock(x,y);
+                if(flagBomb)
+                    flagBomb(x,y);
+                else
+                    removeBlock(x,y);
             }
         }
     }
